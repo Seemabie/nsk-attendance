@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#04070d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NSK Clock">
 <title>NSK Petroleum Attendance</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ffd885'/%3E%3Cstop offset='.6' stop-color='%23ff8b1e'/%3E%3Cstop offset='1' stop-color='%23d24f0b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='24' height='24' rx='6' fill='url(%23g)'/%3E%3Cpath d='M12 4.6s-5 5.6-5 9a5 5 0 0 0 10 0c0-3.4-5-9-5-9z' fill='%232a1403'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,9 +21,9 @@
     --faint:rgba(255,255,255,.05);
     --line:rgba(255,255,255,.09);
     --gold:#f6c35b;
-    --amber:#ff8b1e;
     --accent:#2fe0a0;
     --accent-rgb:47,224,160;
+    --shift:#ffb340;
   }
   body.out{ --accent:#ffb340; --accent-rgb:255,179,64; }
 
@@ -37,6 +38,7 @@
     overflow-x:hidden;
     touch-action:manipulation;
   }
+  button{font-family:inherit;color:inherit}
 
   /* ===== Background ===== */
   .bg{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
@@ -85,8 +87,8 @@
   @keyframes ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.8);opacity:0}}
 
   /* ===== Clock ===== */
-  .clock{text-align:center;margin:32px 0 2px}
-  .time{display:inline-flex;align-items:flex-start;justify-content:center;font-size:72px;font-weight:200;line-height:.92;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+  .clock{text-align:center;margin:28px 0 2px}
+  .time{display:inline-flex;align-items:flex-start;justify-content:center;font-size:68px;font-weight:200;line-height:.92;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
   .dg{background:linear-gradient(180deg,#ffffff 20%,#a3aec2 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
   .colon{animation:breathe 2s ease-in-out infinite;margin:0 .02em;transform:translateY(-.04em)}
   .side{display:flex;flex-direction:column;align-items:flex-start;gap:7px;margin-left:12px;padding-top:9px;font-size:13px;line-height:1;letter-spacing:.12em;font-variant-numeric:tabular-nums}
@@ -95,9 +97,40 @@
   .date{font-size:13px;color:var(--muted);letter-spacing:.04em;margin-top:12px}
   @keyframes breathe{0%,100%{opacity:1}50%{opacity:.25}}
 
-  /* ===== Name field ===== */
-  .field{position:relative;display:block;margin-top:26px}
-  .field.f2{margin-top:10px}
+  /* ===== Person ===== */
+  .who{margin-top:24px;min-height:122px}
+  .pcard{position:relative;display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:20px;
+    background:rgba(0,0,0,.3);border:1px solid var(--line);transition:border-color .4s,box-shadow .4s}
+  .pcard.on{border-color:rgba(255,179,64,.35);box-shadow:0 0 0 4px rgba(255,179,64,.06)}
+  .avatar{flex:none;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:17px;letter-spacing:.03em;color:#1d1204;
+    background:linear-gradient(145deg,#ffe2a3,#ffa94d 60%,#f07a1a);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 20px -8px rgba(255,139,30,.7)}
+  .pinfo{min-width:0;flex:1}
+  .pname{font-size:19px;font-weight:600;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pstat{margin-top:5px;display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden}
+  .pstat i{flex:none;width:7px;height:7px;border-radius:50%;background:#2fe0a0;box-shadow:0 0 8px rgba(47,224,160,.8)}
+  .pstat span{overflow:hidden;text-overflow:ellipsis}
+  .pcard.on .pstat{color:#ffcf85}
+  .pcard.on .pstat i{background:var(--shift);box-shadow:0 0 8px rgba(255,179,64,.9);animation:breathe 1.8s ease-in-out infinite}
+  .ptimer{flex:none;text-align:right;display:none}
+  .pcard.on .ptimer{display:block}
+  .ptimer b{display:block;font-size:22px;font-weight:300;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#ffe0b0;white-space:nowrap}
+  .ptimer span{display:block;margin-top:2px;font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+
+  .chips{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none;padding:2px 1px}
+  .chips::-webkit-scrollbar{display:none}
+  .chips.solo{justify-content:flex-end}
+  .chip{flex:none;display:flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:999px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:13px;font-weight:500;color:var(--muted);transition:all .25s}
+  .chip .mini{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#1d1204;background:linear-gradient(145deg,#ffe2a3,#ffa94d)}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--shift);box-shadow:0 0 6px rgba(255,179,64,.9)}
+  .chip.sel{color:#fff;border-color:rgba(var(--accent-rgb),.55);background:rgba(var(--accent-rgb),.1)}
+  .chip.add{width:34px;padding:0;justify-content:center}
+  .chip.add svg{width:14px;height:14px}
+  .linkbtn{background:none;border:0;cursor:pointer;font-size:12px;color:var(--muted);letter-spacing:.02em;padding:6px 2px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(255,255,255,.2)}
+  .linkbtn:hover{color:var(--text)}
+
+  /* ===== Name field (first time) ===== */
+  .field{position:relative;display:block}
   .field input{width:100%;height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text);
     font:500 17px 'Sora',system-ui,sans-serif;letter-spacing:.01em;padding:23px 18px 8px 52px;outline:none;
     transition:border-color .25s,box-shadow .25s,background .25s}
@@ -107,35 +140,22 @@
   .field input:focus ~ .ico{color:var(--accent)}
   .field .fl{position:absolute;left:52px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--muted);pointer-events:none;transition:all .22s ease}
   .field input:focus + .fl,.field input:not(:placeholder-shown) + .fl{top:18px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(var(--accent-rgb),.95)}
-  .field select{width:100%;height:62px;border-radius:18px;border:1px solid var(--line);background:rgba(0,0,0,.3);color:var(--text);
-    font:500 17px 'Sora',system-ui,sans-serif;letter-spacing:.01em;padding:23px 44px 8px 52px;outline:none;cursor:pointer;
-    -webkit-appearance:none;appearance:none;transition:border-color .25s,box-shadow .25s,background .25s}
-  .field select:focus{border-color:rgba(var(--accent-rgb),.6);box-shadow:0 0 0 4px rgba(var(--accent-rgb),.12);background:rgba(0,0,0,.42)}
-  .field select option{background:#0b0f17;color:#eef2f8}
-  .field select:focus ~ .ico{color:var(--accent)}
-  .field .chev{position:absolute;right:18px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted);pointer-events:none;display:none}
-  .field.sel .chev{display:block}
-  .field.sel input,.field:not(.sel) select{display:none}
-  .field.sel .fl{top:18px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(var(--accent-rgb),.95)}
-  .field.err input,.field.err select{border-color:rgba(255,96,96,.75);box-shadow:0 0 0 4px rgba(255,96,96,.13)}
+  .field.err input{border-color:rgba(255,96,96,.75);box-shadow:0 0 0 4px rgba(255,96,96,.13)}
   .field.err .fl{color:#ff8a8a}
-  .field.shake{animation:shake .45s}
+  .shake{animation:shake .45s}
   @keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
-
-  /* ===== In / Out toggle ===== */
-  .seg{position:relative;display:grid;grid-template-columns:1fr 1fr;margin-top:12px;padding:5px;border-radius:18px;background:rgba(0,0,0,.3);border:1px solid var(--line)}
-  .glider{position:absolute;top:5px;left:5px;width:calc(50% - 5px);height:calc(100% - 10px);border-radius:13px;
-    background:linear-gradient(180deg,rgba(var(--accent-rgb),.3),rgba(var(--accent-rgb),.1));
-    border:1px solid rgba(var(--accent-rgb),.5);box-shadow:0 10px 26px -12px rgba(var(--accent-rgb),.9),inset 0 1px 0 rgba(255,255,255,.12);
-    transition:transform .5s cubic-bezier(.65,0,.2,1)}
-  body.out .glider{transform:translateX(100%)}
-  .seg button{position:relative;z-index:1;height:46px;border:0;background:none;color:var(--muted);cursor:pointer;
-    font:600 12px 'Sora',system-ui,sans-serif;letter-spacing:.18em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:9px;transition:color .3s}
-  .seg button.on{color:#fff}
-  .seg button svg{width:16px;height:16px}
+  .newfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;min-height:28px}
+  .note{font-size:12px;color:var(--dim);letter-spacing:.02em}
+  .manage{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .manage .chip{height:30px;font-size:12px;padding:0 4px 0 4px;cursor:default}
+  .manage .chip .mini{width:22px;height:22px}
+  .manage .x{width:22px;height:22px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:var(--muted);cursor:pointer;display:grid;place-items:center}
+  .manage .x svg{width:10px;height:10px}
+  .manage .x:hover{background:rgba(255,96,96,.2);color:#ff9a9a}
+  .hide{display:none!important}
 
   /* ===== Scanner ===== */
-  .scanwrap{display:flex;flex-direction:column;align-items:center;margin-top:24px}
+  .scanwrap{display:flex;flex-direction:column;align-items:center;margin-top:14px}
   .scanner{position:relative;width:200px;height:200px;display:grid;place-items:center;cursor:pointer;outline:none;
     touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
@@ -174,20 +194,22 @@
   .scanner.hold .pulse,.scanner.busy .pulse{animation:none;opacity:0}
   @keyframes pulse{0%{transform:scale(.96);opacity:.7}100%{transform:scale(1.42);opacity:0}}
 
-  .hint{margin-top:16px;min-height:20px;font-size:13px;letter-spacing:.05em;color:var(--muted);text-align:center;transition:color .3s}
-  .hint.act{color:var(--accent)}
+  .act{margin-top:12px;min-height:18px;font-size:13px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);text-align:center;transition:color .3s}
+  .hint{margin-top:6px;min-height:20px;font-size:13px;letter-spacing:.04em;color:var(--muted);text-align:center;transition:color .3s}
+  .hint.act2{color:var(--accent)}
   .hint.err{color:#ff8a8a}
+  .switch{font-size:11px;color:var(--dim);margin-top:2px}
 
   /* ===== Footer ===== */
-  .foot{margin-top:18px;padding-top:15px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;
+  .foot{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:10px;
     font-size:10px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--dim)}
   .foot span{display:flex;align-items:center;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .foot svg{width:13px;height:13px;flex:none}
-  .foot .loc{transition:color .3s}
-  .foot .loc.ok{color:#2fe0a0}
-  .foot .loc.warn{color:#ffb340}
-  .foot .loc.bad{color:#ff7b7b}
-  .foot .loc.warn svg{animation:breathe 1.6s ease-in-out infinite}
+  .loc{transition:color .3s}
+  .loc.ok{color:#2fe0a0}
+  .loc.warn{color:#ffb340}
+  .loc.bad{color:#ff7b7b}
+  .loc.warn svg{animation:breathe 1.6s ease-in-out infinite}
 
   /* ===== Result ===== */
   .result{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;cursor:pointer;
@@ -226,26 +248,27 @@
     .wm{font-size:13px;letter-spacing:.14em}
     .tag{letter-spacing:.22em}
     .status{padding:6px 9px}
-    .time{font-size:62px}
-  }
-  @media (max-height:880px){
-    .stage{padding:16px}
-    .clock{margin-top:20px}
     .time{font-size:60px}
-    .date{margin-top:8px}
-    .field{margin-top:18px}
-    .field input,.field select{height:56px;padding-top:21px}
-    .field input:focus + .fl,.field input:not(:placeholder-shown) + .fl,.field.sel .fl{top:15px}
-    .scanwrap{margin-top:8px}
-    .scanner{transform:scale(.86);margin:-14px 0}
-    .hint{margin-top:8px}
-    .foot{margin-top:12px;padding-top:12px}
+    .pcard{gap:12px;padding:12px 14px}
+    .avatar{width:44px;height:44px;font-size:15px}
+    .ptimer b{font-size:21px}
   }
-  @media (max-height:720px){
-    .time{font-size:48px}
+  @media (max-height:860px){
+    .stage{padding:16px}
+    .clock{margin-top:18px}
+    .time{font-size:58px}
+    .date{margin-top:8px}
+    .who{margin-top:18px}
+    .scanwrap{margin-top:4px}
+    .scanner{transform:scale(.86);margin:-14px 0}
+    .act{margin-top:6px}
+    .foot{margin-top:10px;padding-top:12px}
+  }
+  @media (max-height:700px){
+    .time{font-size:46px}
     .side{padding-top:4px;gap:4px}
-    .clock{margin-top:14px}
-    .scanner{transform:scale(.76);margin:-24px 0}
+    .clock{margin-top:12px}
+    .scanner{transform:scale(.74);margin:-26px 0}
   }
   @media (prefers-reduced-motion:reduce){
     .blob,.sheen,.ring .ticks{animation:none}
@@ -286,39 +309,36 @@
       <div class="date" id="date">&nbsp;</div>
     </div>
 
-    <label class="field" id="field">
-      <input id="name" type="text" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="words"
-             spellcheck="false" list="names" maxlength="40" enterkeyhint="done" aria-label="Your full name">
-      <span class="fl">Your full name</span>
-      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <circle cx="12" cy="8.2" r="3.7"/><path d="M4.8 20c.9-3.7 3.8-5.6 7.2-5.6s6.3 1.9 7.2 5.6"/>
-      </svg>
-    </label>
-    <datalist id="names"></datalist>
+    <div class="who">
+      <!-- Remembered person -->
+      <div id="personView">
+        <div class="pcard" id="pcard">
+          <div class="avatar" id="avatar"></div>
+          <div class="pinfo">
+            <div class="pname" id="pname"></div>
+            <div class="pstat"><i></i><span id="pstat"></span></div>
+          </div>
+          <div class="ptimer"><b id="ptimer">0:00</b><span>On shift</span></div>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
 
-    <label class="field f2" id="stationField">
-      <input id="stationInput" type="text" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="words"
-             spellcheck="false" list="stations" maxlength="40" enterkeyhint="done" aria-label="Station name">
-      <span class="fl" id="stationLabel">Station name</span>
-      <select id="stationSelect" aria-label="Station"></select>
-      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 20V6.5A2.5 2.5 0 0 1 6.5 4h5A2.5 2.5 0 0 1 14 6.5V20"/><path d="M3 20h12"/><path d="M6.5 8.5h5"/>
-        <path d="M14 10h2.2a1.8 1.8 0 0 1 1.8 1.8v4.7a1.5 1.5 0 0 0 3 0V9.2L18.5 7"/>
-      </svg>
-      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-    </label>
-    <datalist id="stations"></datalist>
-
-    <div class="seg" role="radiogroup" aria-label="Clock in or out">
-      <div class="glider"></div>
-      <button type="button" class="on" data-mode="in" role="radio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h3.5A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5H14"/><path d="M4 12h11"/><path d="M11 8l4 4-4 4"/></svg>
-        Clock In
-      </button>
-      <button type="button" data-mode="out" role="radio">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6.5A2.5 2.5 0 0 0 4 6.5v11A2.5 2.5 0 0 0 6.5 20H10"/><path d="M9 12h11"/><path d="M16 8l4 4-4 4"/></svg>
-        Clock Out
-      </button>
+      <!-- First time on this phone, or someone new -->
+      <div id="newView" class="hide">
+        <label class="field" id="field">
+          <input id="name" type="text" placeholder=" " autocomplete="off" autocorrect="off" autocapitalize="words"
+                 spellcheck="false" maxlength="40" enterkeyhint="done" aria-label="Your full name">
+          <span class="fl">Your full name</span>
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="12" cy="8.2" r="3.7"/><path d="M4.8 20c.9-3.7 3.8-5.6 7.2-5.6s6.3 1.9 7.2 5.6"/>
+          </svg>
+        </label>
+        <div class="newfoot">
+          <span class="note">Type it once. This phone will remember you.</span>
+          <button type="button" class="linkbtn hide" id="cancelNew">Cancel</button>
+        </div>
+        <div class="manage" id="manage"></div>
+      </div>
     </div>
 
     <div class="scanwrap">
@@ -339,12 +359,13 @@
           <div class="sheen"></div>
         </div>
       </div>
-      <div class="hint" id="hint">Type your name, then hold your thumb</div>
+      <div class="act" id="act"></div>
+      <div class="hint" id="hint"></div>
+      <button type="button" class="linkbtn switch hide" id="switch"></button>
     </div>
 
     <footer class="foot">
       <span class="loc" id="loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><b id="locText" style="font-weight:500"></b></span>
-      <span id="device"></span>
     </footer>
 
     <div class="result" id="result" role="status" aria-live="polite">
@@ -364,11 +385,13 @@
 (() => {
   /* ================== SETTINGS ================== */
   const CONFIG = {
-    SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxJDvTT4AY4RwGOPQqQAQHjYQjgCGGd74TTZE9DEuQPvH3fyrjYe9_HfJHk1XQm2KVOoA/exec", // Google Apps Script web app link (logs into the Google Sheet)
-    HOLD_MS: 1700,                  // how long the thumb must be held
-    RESULT_MS: 4200,                // how long the confirmation screen stays up
-    REQUIRE_LOCATION: true,         // location must be on; every scan records where it happened
-    ACC_GRACE: 150                  // extra meters allowed when the GPS signal is weak
+    SCRIPT_URL: "https://script.google.com/macros/s/AKfycbxJDvTT4AY4RwGOPQqQAQHjYQjgCGGd74TTZE9DEuQPvH3fyrjYe9_HfJHk1XQm2KVOoA/exec", // Google Apps Script web app link
+    HOLD_MS: 1700,          // how long the thumb must be held
+    RESULT_MS: 4200,        // how long the confirmation screen stays up
+    REQUIRE_LOCATION: true, // location must be on; every scan records where it happened
+    ACC_GRACE: 150,         // extra meters allowed when the GPS signal is weak
+    STALE_HOURS: 16,        // an open shift older than this counts as a missed clock out
+    MAX_PEOPLE: 8           // people remembered on one phone or tablet
   };
   /* ============================================== */
 
@@ -377,42 +400,77 @@
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const buzz = pat => { try { navigator.vibrate && navigator.vibrate(pat); } catch (e) {} };
   const cleanName = s => (s || "").replace(/\s+/g, " ").trim().replace(/\b\w/g, c => c.toUpperCase());
+  const keyOf = n => cleanName(n).toLowerCase();
+  const initials = n => cleanName(n).split(" ").filter(Boolean).slice(0, 2).map(w => w[0]).join("").toUpperCase() || "?";
+  const firstName = n => cleanName(n).split(" ")[0];
+  const fmtTime = t => new Date(t).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const fmtDur = ms => { const m = Math.max(0, Math.floor(ms / 60000)), h = Math.floor(m / 60); return h ? h + "h " + String(m % 60).padStart(2, "0") + "m" : (m % 60) + "m"; };
+  const ICON_X = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 2l8 8M10 2l-8 8"/></svg>';
+  const ICON_PLUS = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>';
 
   let DEVICE = load("nsk_device", null);
   if (!DEVICE) { DEVICE = Math.random().toString(36).slice(2, 6).toUpperCase(); store("nsk_device", DEVICE); }
-  $("#device").textContent = "Terminal " + DEVICE;
 
-  /* ---------- Station: dropdown from the sheet, or typed if none set up ---------- */
-  const stationEl = $("#stationInput"), stationSel = $("#stationSelect"), stationField = $("#stationField");
-  const urlStation = new URLSearchParams(location.search).get("station");
-  stationEl.value = cleanName(urlStation || load("nsk_station", ""));
-  let stations = load("nsk_cfg_stations", []);       // [{name, lat, lng, radius}] from the Stations tab
-  let stationManual = false;
-  const stationsMode = () => stations.length > 0;
-  const getStation = () => stationsMode() ? stationSel.value : cleanName(stationEl.value);
-  const stationObj = n => stations.find(s => s.name.toLowerCase() === String(n || "").toLowerCase()) || null;
-  function fillStations() {
-    const dl = $("#stations"); dl.innerHTML = "";
-    load("nsk_stations", []).forEach(n => { const o = document.createElement("option"); o.value = n; dl.appendChild(o); });
+  /* ---------- People remembered on this phone ---------- */
+  let people = load("nsk_people", null);
+  if (!Array.isArray(people)) {                                   // first run of this version: carry over names typed before
+    const seen = new Set();
+    people = load("nsk_names", []).map(cleanName).filter(n => n.length > 1 && !seen.has(n.toLowerCase()) && seen.add(n.toLowerCase()))
+      .slice(0, CONFIG.MAX_PEOPLE).map((n, i) => ({ name: n, t: Date.now() - i }));
+    store("nsk_people", people);
   }
-  function applyStationMode() {
-    if (!stationsMode()) { stationField.classList.remove("sel"); $("#stationLabel").textContent = "Station name"; updateLocUI(); return; }
-    const keep = stationSel.value || load("nsk_station", "") || urlStation || "";
-    stationSel.innerHTML = "";
-    const ph = document.createElement("option"); ph.value = ""; ph.textContent = "Select your station"; ph.disabled = true; stationSel.appendChild(ph);
-    stations.forEach(s => { const o = document.createElement("option"); o.value = s.name; o.textContent = s.name; stationSel.appendChild(o); });
-    const hit = stationObj(keep);
-    stationSel.value = hit ? hit.name : "";
-    stationField.classList.add("sel");
-    $("#stationLabel").textContent = "Station";
-    autoPick(); updateLocUI();
+  let selKey = people.length ? keyOf(people[0].name) : null;
+  let view = people.length ? "person" : "new";
+  const savePeople = () => { people.sort((a, b) => b.t - a.t); store("nsk_people", people); };
+  function remember(name) {
+    const k = keyOf(name);
+    const hit = people.find(p => keyOf(p.name) === k);
+    if (hit) { hit.name = cleanName(name); hit.t = Date.now(); }
+    else people.push({ name: cleanName(name), t: Date.now() });
+    savePeople();
+    people = people.slice(0, CONFIG.MAX_PEOPLE); store("nsk_people", people);
   }
-  async function loadStations() {
+  function forget(k) {
+    people = people.filter(p => keyOf(p.name) !== k); store("nsk_people", people);
+    if (selKey === k) selKey = people.length ? keyOf(people[0].name) : null;
+    if (!people.length) view = "new";
+    render();
+  }
+
+  /* ---------- Shift status (sheet is the source of truth, cached here) ---------- */
+  let shifts = load("nsk_shift", null);
+  if (!shifts) {
+    shifts = {};
+    const old = load("nsk_state", {});
+    Object.keys(old).forEach(k => { shifts[k] = old[k].action === "IN" ? { on: true, since: old[k].time } : { on: false }; });
+    store("nsk_shift", shifts);
+  }
+  const openShift = k => { const s = k && shifts[k]; return s && s.on && Date.now() - s.since < CONFIG.STALE_HOURS * 3600e3 ? s : null; };
+  const lastFetch = {};
+  async function fetchStatus(name, force) {
+    const k = keyOf(name);
+    if (!CONFIG.SCRIPT_URL || k.length < 2 || !navigator.onLine) return;
+    if (!force && lastFetch[k] && Date.now() - lastFetch[k] < 45000) return;
+    lastFetch[k] = Date.now();
+    try {
+      const r = await fetch(CONFIG.SCRIPT_URL + "?action=status&name=" + encodeURIComponent(cleanName(name)) + "&t=" + Date.now());
+      const j = await r.json();
+      if (!j || !j.ok) return;
+      const pending = load("nsk_queue", []).some(e => e.key === k && !e.blocked);   // our own unsent scan wins
+      if (pending) return;
+      shifts[k] = j.onShift ? { on: true, since: Date.parse(j.since), station: j.station || "" } : { on: false };
+      store("nsk_shift", shifts);
+      if (k === curKey() && !busy && !holding) render();
+    } catch (e) {}
+  }
+
+  /* ---------- Stations (from the Stations tab, matched by location) ---------- */
+  let sites = load("nsk_sites", []);
+  async function loadSites() {
     if (!CONFIG.SCRIPT_URL) return;
     try {
-      const r = await fetch(CONFIG.SCRIPT_URL + "?action=stations&t=" + Date.now());
-      const j = await r.json();
-      if (j && j.ok && Array.isArray(j.stations)) { stations = j.stations; store("nsk_cfg_stations", stations); applyStationMode(); }
+      const j = await fetch(CONFIG.SCRIPT_URL + "?action=sites&t=" + Date.now()).then(r => r.json());
+      if (j && j.ok && Array.isArray(j.sites)) { sites = j.sites; store("nsk_sites", sites); updateLocUI(); }
     } catch (e) {}
   }
 
@@ -424,18 +482,19 @@
     const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
     return 2 * R * Math.asin(Math.sqrt(h));
   }
-  const fmtDist = m => m < 1000 ? Math.round(m) + " m" : (m / 1000).toFixed(m < 10000 ? 1 : 0) + " km";
-  const mapped = () => stations.filter(s => s.lat != null && s.lng != null);
-  const allowance = s => (Number(s.radius) || 200) + Math.min(pos ? pos.acc || 0 : 0, CONFIG.ACC_GRACE);
-  function nearest() {
-    if (!pos) return null;
+  function siteAt(p) {
+    if (!p) return null;
     let best = null;
-    mapped().forEach(s => { const d = meters(pos, s); if (!best || d < best.d) best = { s, d, within: d <= allowance(s) }; });
+    sites.forEach(s => {
+      if (s.lat == null || s.lng == null) return;
+      const d = meters(p, s);
+      if (d <= (Number(s.radius) || 200) + Math.min(p.acc || 0, CONFIG.ACC_GRACE) && (!best || d < best.d)) best = { name: s.name, d };
+    });
     return best;
   }
   function setPos(p) {
     pos = { lat: p.coords.latitude, lng: p.coords.longitude, acc: Math.round(p.coords.accuracy || 0), t: Date.now() };
-    geoState = "ok"; autoPick(); updateLocUI();
+    geoState = "ok"; updateLocUI();
   }
   function startGeo() {
     if (!("geolocation" in navigator)) { geoState = "unavailable"; updateLocUI(); return; }
@@ -456,39 +515,15 @@
         { enableHighAccuracy: true, timeout: Math.max(1000, ms - 300), maximumAge: 15000 });
     });
   }
-  function autoPick() {
-    if (!stationsMode() || stationManual || !pos) return;
-    const n = nearest();
-    if (n && n.within && stationSel.value !== n.s.name) { stationSel.value = n.s.name; stationField.classList.remove("err"); if (!holding && !busy) setHint(); }
-  }
   function updateLocUI() {
     const el = $("#loc"), t = $("#locText");
     let cls = "", txt;
-    if (!CONFIG.REQUIRE_LOCATION) txt = getStation() || "Station not set";
+    if (!CONFIG.REQUIRE_LOCATION) txt = "Location not required";
     else if (geoState === "denied") { cls = "bad"; txt = "Location blocked"; }
     else if (!pos && geoState === "unavailable") { cls = "bad"; txt = "Location unavailable"; }
     else if (!pos) { cls = "warn"; txt = "Locating"; }
-    else if (!mapped().length) { cls = "ok"; txt = "Location on"; }
-    else {
-      const n = nearest();
-      if (n && n.within) { cls = "ok"; txt = "At " + n.s.name; }
-      else if (n) { cls = "bad"; txt = fmtDist(n.d) + " from " + n.s.name; }
-      else { cls = "warn"; txt = "Locating"; }
-    }
+    else { const s = siteAt(pos); cls = "ok"; txt = s ? "At " + s.name : "Location on"; }
     el.className = "loc " + cls; t.textContent = txt;
-  }
-  async function verifyLocation() {
-    if (!CONFIG.REQUIRE_LOCATION) return { ok: true };
-    if (geoState === "denied") return { ok: false, reason: "denied", station: getStation() };
-    let fix = pos && Date.now() - pos.t < 60e3 ? pos : null;
-    if (!fix) { setHint("Checking location", "act"); fix = await freshFix(8000); }
-    if (geoState === "denied") return { ok: false, reason: "denied", station: getStation() };
-    const st = stationObj(getStation());
-    if (!st || st.lat == null) return { ok: true };            // no station lock: just record where they are
-    if (!fix) return { ok: false, reason: "nolock", station: st.name };
-    const d = meters(fix, st);
-    const ok = d <= (Number(st.radius) || 200) + Math.min(fix.acc || 0, CONFIG.ACC_GRACE);
-    return { ok, reason: ok ? "" : "far", station: st.name, d };
   }
 
   /* ---------- Clock ---------- */
@@ -502,6 +537,8 @@
     mm.textContent = String(n.getMinutes()).padStart(2, "0");
     ss.textContent = String(n.getSeconds()).padStart(2, "0");
     dateEl.textContent = n.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    const s = view === "person" && openShift(selKey);
+    if (s) $("#ptimer").textContent = fmtDur(Date.now() - s.since);
   }
   tick();
   setTimeout(() => { tick(); setInterval(tick, 1000); }, 1000 - (Date.now() % 1000));
@@ -511,21 +548,17 @@
   const baseG = $(".fp .base"), litG = $(".fp .lit g");
   let seed = 11;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const cx = 50, cy = 62;
   for (let i = 0; i < 9; i++) {
-    const rx = 4 + i * 4.7, ry = 6 + i * 6.3;
-    const leg = 12 + i * 3;
-    const k = i * 0.35, x1 = cx - rx, x2 = cx + rx;
-    const f = n => n.toFixed(1);
-    const d = `M${f(x1 - k)} ${f(cy + leg)} Q${f(x1)} ${f(cy + leg * .4)} ${f(x1)} ${cy} ` +
-              `A${f(rx)} ${f(ry)} 0 0 1 ${f(x2)} ${cy} Q${f(x2)} ${f(cy + leg * .4)} ${f(x2 + k)} ${f(cy + leg - (i % 3) * 3)}`;
+    const cx = 50, cy = 62, rx = 4 + i * 4.7, ry = 6 + i * 6.3, leg = 12 + i * 3;
+    const k = i * 0.35, x1 = cx - rx, x2 = cx + rx, f = n => n.toFixed(1);
+    const d = "M" + f(x1 - k) + " " + f(cy + leg) + " Q" + f(x1) + " " + f(cy + leg * .4) + " " + f(x1) + " " + cy +
+              " A" + f(rx) + " " + f(ry) + " 0 0 1 " + f(x2) + " " + cy + " Q" + f(x2) + " " + f(cy + leg * .4) + " " + f(x2 + k) + " " + f(cy + leg - (i % 3) * 3);
     const len = Math.PI * (rx + ry) / 2 + leg * 2 + 8;
     const dash = []; let acc = 0;
     while (acc < len) { const a = 10 + rnd() * len * .5, g = 2.5 + rnd() * 3.5; dash.push(f(a), f(g)); acc += a + g; }
     [baseG, litG].forEach(g => {
       const p = document.createElementNS(NS, "path");
-      p.setAttribute("d", d);
-      p.setAttribute("stroke-dasharray", dash.join(" "));
+      p.setAttribute("d", d); p.setAttribute("stroke-dasharray", dash.join(" "));
       g.appendChild(p);
     });
   }
@@ -534,65 +567,113 @@
   const scanner = $("#scanner"), pad = $("#pad"), revealRect = $("#revealRect"), scanline = $("#scanline");
   const prog = $(".ring .prog"), C = 2 * Math.PI * 96;
   prog.style.strokeDasharray = C;
-  const nameEl = $("#name"), field = $("#field"), hint = $("#hint");
-  const result = $("#result");
-  const segBtns = document.querySelectorAll(".seg button");
+  const nameEl = $("#name"), field = $("#field"), hint = $("#hint"), result = $("#result");
+  let override = null, p = 0, holding = false, busy = false, last = performance.now(), resetTimer, hintTimer, typeTimer;
 
-  let mode = "in", manual = false, p = 0, holding = false, busy = false, last = performance.now(), resetTimer, hintTimer;
+  const curName = () => view === "person" ? ((people.find(x => keyOf(x.name) === selKey) || {}).name || "") : cleanName(nameEl.value);
+  const curKey = () => keyOf(curName());
+  const autoMode = () => openShift(curKey()) ? "out" : "in";
+  const mode = () => override || autoMode();
 
   function setHint(text, cls) {
     clearTimeout(hintTimer);
-    if (!text) {
-      text = cleanName(nameEl.value).length < 2 ? "Type your name, then hold your thumb"
-        : getStation().length < 2 ? (stationsMode() ? "Choose your station, then hold your thumb" : "Add your station, then hold your thumb")
-        : (mode === "in" ? "Press and hold your thumb to clock in" : "Press and hold your thumb to clock out");
-      cls = "";
-    }
-    hint.textContent = text;
+    hint.textContent = text || "";
     hint.className = "hint" + (cls ? " " + cls : "");
   }
 
-  function setMode(m, auto) {
-    if (auto && manual) return;
-    mode = m;
-    document.body.classList.toggle("out", m === "out");
-    segBtns.forEach(b => { const on = b.dataset.mode === m; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
-    if (!holding && !busy) setHint();
-  }
-  segBtns.forEach(b => b.addEventListener("click", () => { if (busy) return; manual = true; setMode(b.dataset.mode); buzz(8); }));
+  function render() {
+    const hasName = curName().length >= 2;
+    $("#personView").classList.toggle("hide", view !== "person");
+    $("#newView").classList.toggle("hide", view !== "new");
 
-  /* ---------- Names remembered on this device ---------- */
-  function fillNames() {
-    const dl = $("#names"); dl.innerHTML = "";
-    load("nsk_names", []).forEach(n => { const o = document.createElement("option"); o.value = n; dl.appendChild(o); });
+    if (view === "person") {
+      const person = people.find(x => keyOf(x.name) === selKey) || people[0];
+      selKey = keyOf(person.name);
+      const s = openShift(selKey);
+      $("#avatar").textContent = initials(person.name);
+      $("#pname").textContent = person.name;
+      $("#pcard").classList.toggle("on", !!s);
+      $("#pstat").textContent = s ? "In at " + fmtTime(s.since) : "Not clocked in";
+      if (s) $("#ptimer").textContent = fmtDur(Date.now() - s.since);
+
+      const chips = $("#chips"); chips.innerHTML = "";
+      chips.classList.toggle("solo", people.length === 1);
+      if (people.length === 1) {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "linkbtn"; b.textContent = "Not " + firstName(person.name) + "?";
+        b.onclick = () => openNew();
+        chips.appendChild(b);
+      } else {
+        people.forEach(x => {
+          const k = keyOf(x.name), b = document.createElement("button");
+          b.type = "button"; b.className = "chip" + (k === selKey ? " sel" : "");
+          b.innerHTML = '<span class="nm"></span>' + (openShift(k) ? '<span class="dot" title="On shift"></span>' : "");
+          b.querySelector(".nm").textContent = firstName(x.name);
+          b.onclick = () => { if (busy) return; selKey = k; override = null; render(); fetchStatus(x.name); buzz(8); };
+          chips.appendChild(b);
+        });
+        const add = document.createElement("button");
+        add.type = "button"; add.className = "chip add"; add.innerHTML = ICON_PLUS; add.setAttribute("aria-label", "Someone new");
+        add.onclick = () => openNew();
+        chips.appendChild(add);
+      }
+    } else {
+      $("#cancelNew").classList.toggle("hide", !people.length);
+      const man = $("#manage"); man.innerHTML = "";
+      people.forEach(x => {
+        const k = keyOf(x.name), c = document.createElement("span");
+        c.className = "chip";
+        c.innerHTML = '<span class="mini"></span><span class="nm"></span><button type="button" class="x" aria-label="Remove">' + ICON_X + "</button>";
+        c.querySelector(".mini").textContent = initials(x.name);
+        c.querySelector(".nm").textContent = firstName(x.name);
+        c.querySelector(".nm").style.cursor = "pointer";
+        c.querySelector(".nm").onclick = () => { selKey = k; view = "person"; override = null; render(); fetchStatus(x.name); };
+        c.querySelector(".x").onclick = () => forget(k);
+        man.appendChild(c);
+      });
+    }
+
+    const m = mode();
+    document.body.classList.toggle("out", m === "out");
+    const act = $("#act"), sw = $("#switch");
+    if (!busy && !holding) {
+      if (hasName) {
+        act.textContent = m === "out" ? "Hold to clock out" : "Hold to clock in";
+        if (!hint.classList.contains("err")) setHint("");
+        sw.classList.remove("hide");
+        sw.textContent = override ? "Back to " + (autoMode() === "out" ? "clock out" : "clock in") : (m === "out" ? "Clock in instead" : "Clock out instead");
+      } else {
+        act.textContent = "";
+        if (!hint.classList.contains("err")) setHint("Type your name, then hold your thumb");
+        sw.classList.add("hide");
+      }
+    }
   }
-  fillNames();
+
+  function openNew() {
+    if (busy) return;
+    view = "new"; override = null; nameEl.value = ""; field.classList.remove("err");
+    render();
+    setTimeout(() => nameEl.focus(), 50);
+  }
+  $("#cancelNew").onclick = () => { view = "person"; override = null; nameEl.value = ""; render(); };
+  $("#switch").onclick = () => { if (busy) return; override = override ? null : (autoMode() === "out" ? "in" : "out"); buzz(8); render(); };
 
   nameEl.addEventListener("input", () => {
-    field.classList.remove("err");
-    const key = cleanName(nameEl.value).toLowerCase();
-    const st = load("nsk_state", {})[key];
-    if (st && st.action === "IN" && Date.now() - st.time < 20 * 3600e3) setMode("out", true);
-    else setMode("in", true);
-    setHint();
+    field.classList.remove("err"); hint.classList.remove("err"); override = null;
+    render();
+    clearTimeout(typeTimer);
+    typeTimer = setTimeout(() => { if (cleanName(nameEl.value).length >= 3) fetchStatus(nameEl.value); }, 700);
   });
-  function nudgePad() { pad.classList.remove("nudge"); void pad.offsetWidth; pad.classList.add("nudge"); }
   nameEl.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (getStation().length < 2) stationEl.focus(); else { nameEl.blur(); nudgePad(); }
-    }
+    if (e.key === "Enter") { e.preventDefault(); nameEl.blur(); pad.classList.remove("nudge"); void pad.offsetWidth; pad.classList.add("nudge"); }
   });
-  stationEl.addEventListener("input", () => { stationField.classList.remove("err"); updateLocUI(); setHint(); });
-  stationEl.addEventListener("change", () => { stationEl.value = getStation(); updateLocUI(); });
-  stationSel.addEventListener("change", () => { stationManual = true; stationField.classList.remove("err"); updateLocUI(); setHint(); });
-  stationEl.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); stationEl.blur(); nudgePad(); } });
 
-  function flag(fieldEl, inputEl, msg) {
-    fieldEl.classList.remove("shake"); void fieldEl.offsetWidth; fieldEl.classList.add("shake", "err");
-    setHint(msg, "err");
+  function flagName() {
+    field.classList.remove("shake"); void field.offsetWidth; field.classList.add("shake", "err");
+    setHint("Please type your name first", "err");
     buzz([30, 40, 30]);
-    setTimeout(() => inputEl.focus(), 60);
+    setTimeout(() => nameEl.focus(), 60);
   }
 
   /* ---------- Hold to scan ---------- */
@@ -601,18 +682,13 @@
     if (e && e.type === "pointerdown" && e.button > 0) return;
     if (e) e.preventDefault();
     unlockAudio(); keepAwake();
-    if (cleanName(nameEl.value).length < 2) { flag(field, nameEl, "Please type your name first"); return; }
-    const denyNow = chk => { recordBlocked(makeEntry(chk), chk); showDeny(chk); };
-    if (CONFIG.REQUIRE_LOCATION && geoState === "denied") { denyNow({ reason: "denied", station: getStation() }); return; }
-    if (getStation().length < 2) {
-      const n = nearest();
-      if (stationsMode() && CONFIG.REQUIRE_LOCATION && n && !n.within) { denyNow({ reason: "nostation", d: n.d, station: n.s.name }); return; }
-      flag(stationField, stationsMode() ? stationSel : stationEl, stationsMode() ? "Please choose your station" : "Please add your station name"); return;
-    }
-    nameEl.blur(); stationEl.blur(); stationSel.blur();
+    if (curName().length < 2) { flagName(); return; }
+    if (CONFIG.REQUIRE_LOCATION && geoState === "denied") { const c = { reason: "denied" }; recordBlocked(makeEntry(), c); showDeny(c); return; }
+    nameEl.blur();
     holding = true;
     scanner.classList.add("hold");
-    setHint("Scanning, keep holding", "act");
+    $("#act").textContent = ""; $("#switch").classList.add("hide");
+    setHint("Scanning, keep holding", "act2");
     buzz(12);
     if (e && e.pointerId != null) { try { scanner.setPointerCapture(e.pointerId); } catch (err) {} }
   }
@@ -623,7 +699,8 @@
     if (!busy && p < 1) {
       setHint("Hold a little longer", "err");
       buzz(25);
-      hintTimer = setTimeout(() => { if (!holding && !busy) setHint(); }, 1500);
+      hintTimer = setTimeout(() => { if (!holding && !busy) { hint.classList.remove("err"); render(); } }, 1500);
+      render();
     }
   }
   scanner.addEventListener("pointerdown", start);
@@ -634,7 +711,7 @@
   scanner.addEventListener("keydown", e => { if ((e.key === " " || e.key === "Enter") && !e.repeat) start(e); });
   scanner.addEventListener("keyup", e => { if (e.key === " " || e.key === "Enter") end(); });
 
-  function render() {
+  function renderScan() {
     const e = 1 - Math.pow(1 - p, 1.4);
     revealRect.setAttribute("y", (2 + (1 - e) * 102).toFixed(2));
     prog.style.strokeDashoffset = (C * (1 - p)).toFixed(2);
@@ -646,56 +723,48 @@
       if (holding) { p = Math.min(1, p + dt / CONFIG.HOLD_MS); if (p >= 1) complete(); }
       else if (p > 0) { p = Math.max(0, p - dt / 380); }
     }
-    render();
+    renderScan();
     requestAnimationFrame(loop);
   }
   requestAnimationFrame(loop);
 
   /* ---------- Recording ---------- */
-  function makeEntry(chk) {
+  function makeEntry() {
     const now = new Date();
     const fix = pos && Date.now() - pos.t < 5 * 60e3 ? pos : null;
-    const name = cleanName(nameEl.value);
-    const action = mode === "in" ? "IN" : "OUT";
-    const key = name.toLowerCase();
-    const prev = load("nsk_state", {})[key];
-    let shiftMin = null;
-    if (action === "OUT" && prev && prev.action === "IN" && now - prev.time < 20 * 3600e3) shiftMin = Math.round((now - prev.time) / 60000);
+    const name = curName(), key = keyOf(name);
+    const action = mode() === "out" ? "OUT" : "IN";
+    const s = openShift(key);
+    const site = siteAt(fix);
     return {
       id: DEVICE + now.getTime().toString(36),
-      name, action, station: getStation(), device: DEVICE,
-      date: now.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" }),
+      name, key, action, device: DEVICE, station: site ? site.name : "",
+      iso: now.toISOString(), ts: now.getTime(),
       time: now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
-      iso: now.toISOString(), ts: now.getTime(), key, shiftMin,
-      lat: fix ? +fix.lat.toFixed(6) : "", lng: fix ? +fix.lng.toFixed(6) : "", acc: fix ? fix.acc : "",
-      dist: chk && chk.d != null ? Math.round(chk.d) : ""
+      shiftMin: action === "OUT" && s ? Math.round((now - s.since) / 60000) : null,
+      lat: fix ? +fix.lat.toFixed(6) : "", lng: fix ? +fix.lng.toFixed(6) : "", acc: fix ? fix.acc : ""
     };
   }
 
   function recordBlocked(e, chk) {
     if (!CONFIG.SCRIPT_URL) return;
     e.blocked = true;
-    e.reason = chk.reason === "far" ? "Off site " + fmtDist(chk.d) + " from " + chk.station
-             : chk.reason === "nostation" ? "Not at any station" + (chk.d != null ? " (" + fmtDist(chk.d) + " from " + chk.station + ")" : "")
-             : chk.reason === "denied" ? "Location turned off" : "No location signal";
-    const q = load("nsk_queue", []); q.push(e); store("nsk_queue", q);
-    flush();
+    e.reason = chk.reason === "denied" ? "Location turned off" : "No location signal";
+    queue(e);
   }
 
   function record(e) {
-    const log = load("nsk_log", []); log.push(e); store("nsk_log", log.slice(-500));
-    const st = load("nsk_state", {}); st[e.key] = { action: e.action, time: e.ts }; store("nsk_state", st);
-    const names = load("nsk_names", []).filter(n => n.toLowerCase() !== e.key);
-    names.unshift(e.name); store("nsk_names", names.slice(0, 80)); fillNames();
-    store("nsk_station", e.station);
-    const sts = load("nsk_stations", []).filter(s => s.toLowerCase() !== e.station.toLowerCase());
-    sts.unshift(e.station); store("nsk_stations", sts.slice(0, 40)); fillStations();
+    remember(e.name);
+    selKey = e.key; view = "person"; nameEl.value = "";
+    shifts[e.key] = e.action === "IN" ? { on: true, since: e.ts, station: e.station } : { on: false };
+    store("nsk_shift", shifts);
+    lastFetch[e.key] = Date.now();
     if (!CONFIG.SCRIPT_URL) return "demo";
-    const q = load("nsk_queue", []); q.push(e); store("nsk_queue", q);
-    flush();
+    queue(e);
     return navigator.onLine ? "live" : "offline";
   }
 
+  function queue(e) { const q = load("nsk_queue", []); q.push(e); store("nsk_queue", q); flush(); }
   function send(e) {
     return Promise.race([
       fetch(CONFIG.SCRIPT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(e) })
@@ -724,22 +793,21 @@
     else if (load("nsk_queue", []).length) { cls = "off"; txt = "Syncing"; }
     s.className = "status " + cls; t.textContent = txt;
   }
-  window.addEventListener("online", flush);
+  window.addEventListener("online", () => { flush(); loadSites(); if (curName()) fetchStatus(curName(), true); });
   window.addEventListener("offline", updateStatus);
   setInterval(flush, 30000);
-  flush();
 
   /* ---------- Complete & result ---------- */
   async function complete() {
     holding = false; busy = true; p = 1;
     scanner.classList.remove("hold"); scanner.classList.add("busy");
-    setHint("Verifying", "act");
+    setHint("Verifying", "act2");
     buzz([12, 40, 12]);
     const t0 = Date.now();
-    const chk = await verifyLocation();
+    if (CONFIG.REQUIRE_LOCATION && !(pos && Date.now() - pos.t < 60e3)) { setHint("Checking location", "act2"); await freshFix(8000); }
     const wait = Math.max(0, 850 - (Date.now() - t0));
-    const entry = makeEntry(chk);
-    if (!chk.ok) { recordBlocked(entry, chk); setTimeout(() => showDeny(chk), wait); return; }
+    const entry = makeEntry();
+    if (CONFIG.REQUIRE_LOCATION && geoState === "denied") { const c = { reason: "denied" }; recordBlocked(entry, c); setTimeout(() => showDeny(c), wait); return; }
     const how = record(entry);
     setTimeout(() => showResult(entry, how), wait);
   }
@@ -747,18 +815,11 @@
   function showDeny(chk) {
     busy = true; holding = false;
     scanner.classList.remove("hold"); scanner.classList.add("busy");
-    const titles = { far: "Not at the station", nostation: "Not at a station", denied: "Location is off", nolock: "Can't find location" };
-    const metas = {
-      far: "You must be at " + chk.station + " to clock in",
-      nostation: "Clock in only works at an NSK station",
-      denied: "Allow location for this page, then try again",
-      nolock: "Check WiFi or move near a window, then try again"
-    };
     result.classList.add("deny");
-    $("#rKicker").textContent = "Location Check Failed";
-    $("#rName").textContent = titles[chk.reason] || "Not verified";
-    $("#rTime").textContent = chk.d != null ? fmtDist(chk.d) + " away" : "";
-    $("#rMeta").textContent = metas[chk.reason] || "";
+    $("#rKicker").textContent = "Not Recorded";
+    $("#rName").textContent = "Location is off";
+    $("#rTime").textContent = "";
+    $("#rMeta").textContent = "Allow location for this page, then try again";
     $("#rNote").textContent = "";
     $("#rBar").style.animationDuration = CONFIG.RESULT_MS + "ms";
     result.classList.add("show");
@@ -769,14 +830,13 @@
 
   function showResult(e, how) {
     result.classList.remove("deny");
-    const first = e.name.split(" ")[0];
     const isIn = e.action === "IN";
     $("#rKicker").textContent = isIn ? "Clocked In" : "Clocked Out";
-    $("#rName").textContent = (isIn ? "Welcome, " : "See you, ") + first;
+    $("#rName").textContent = (isIn ? "Welcome, " : "See you, ") + firstName(e.name);
     $("#rTime").textContent = e.time;
     let meta = isIn ? "Have a great shift" : "Thanks for your work today";
     if (!isIn && e.shiftMin != null) meta = "Shift time " + Math.floor(e.shiftMin / 60) + "h " + (e.shiftMin % 60) + "m";
-    $("#rMeta").textContent = meta + "  ·  " + e.station;
+    $("#rMeta").textContent = meta + (e.station ? "  ·  " + e.station : "");
     $("#rNote").textContent = how === "demo" ? "Sample mode · Sheet not linked yet"
                             : how === "offline" ? "Saved on device · will sync when online" : "";
     $("#rBar").style.animationDuration = CONFIG.RESULT_MS + "ms";
@@ -791,12 +851,9 @@
     result.classList.remove("show");
     setTimeout(() => { if (!result.classList.contains("show")) result.classList.remove("deny"); }, 500);
     scanner.classList.remove("busy");
-    busy = false;
-    nameEl.value = "";
-    manual = false; stationManual = false; autoPick(); updateLocUI();
-    field.classList.remove("err"); stationField.classList.remove("err");
-    setMode("in");
-    setHint();
+    busy = false; override = null;
+    field.classList.remove("err"); hint.classList.remove("err");
+    render(); updateLocUI();
   }
   result.addEventListener("click", reset);
 
@@ -805,50 +862,39 @@
   function unlockAudio() {
     try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === "suspended") actx.resume(); } catch (e) {}
   }
-  function chime(up) {
+  function tone(notes, type, vol, len) {
     if (!actx) return;
     try {
       const t = actx.currentTime;
-      const notes = up ? [[880, 0], [1318.5, .12]] : [[1318.5, 0], [880, .12]];
       notes.forEach(([fr, d]) => {
         const o = actx.createOscillator(), g = actx.createGain();
-        o.type = "sine"; o.frequency.value = fr;
+        o.type = type; o.frequency.value = fr;
         g.gain.setValueAtTime(0, t + d);
-        g.gain.linearRampToValueAtTime(.16, t + d + .02);
-        g.gain.exponentialRampToValueAtTime(.001, t + d + .6);
+        g.gain.linearRampToValueAtTime(vol, t + d + .02);
+        g.gain.exponentialRampToValueAtTime(.001, t + d + len);
         o.connect(g); g.connect(actx.destination);
-        o.start(t + d); o.stop(t + d + .65);
+        o.start(t + d); o.stop(t + d + len + .05);
       });
     } catch (e) {}
   }
-  function denyTone() {
-    if (!actx) return;
-    try {
-      const t = actx.currentTime;
-      [[311, 0], [233, .16]].forEach(([fr, d]) => {
-        const o = actx.createOscillator(), g = actx.createGain();
-        o.type = "triangle"; o.frequency.value = fr;
-        g.gain.setValueAtTime(0, t + d);
-        g.gain.linearRampToValueAtTime(.18, t + d + .02);
-        g.gain.exponentialRampToValueAtTime(.001, t + d + .35);
-        o.connect(g); g.connect(actx.destination);
-        o.start(t + d); o.stop(t + d + .4);
-      });
-    } catch (e) {}
-  }
+  const chime = up => tone(up ? [[880, 0], [1318.5, .12]] : [[1318.5, 0], [880, .12]], "sine", .16, .6);
+  const denyTone = () => tone([[311, 0], [233, .16]], "triangle", .18, .35);
   async function keepAwake() {
-    try {
-      if (!wl && "wakeLock" in navigator) { wl = await navigator.wakeLock.request("screen"); wl.addEventListener("release", () => { wl = null; }); }
-    } catch (e) {}
+    try { if (!wl && "wakeLock" in navigator) { wl = await navigator.wakeLock.request("screen"); wl.addEventListener("release", () => { wl = null; }); } } catch (e) {}
   }
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && wl === null) keepAwake(); });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    if (wl === null) keepAwake();
+    if (curName()) fetchStatus(curName());     // phone woke up: refresh shift status
+  });
 
-  setMode("in");
-  fillStations();
-  applyStationMode();
-  loadStations();
-  setInterval(loadStations, 30 * 60e3);
-  window.addEventListener("online", loadStations);
+  /* ---------- Start ---------- */
+  render();
+  updateStatus();
+  flush();
+  loadSites();
+  setInterval(loadSites, 30 * 60e3);
+  if (curName()) fetchStatus(curName(), true);
   if (CONFIG.REQUIRE_LOCATION && CONFIG.SCRIPT_URL) startGeo();
   updateLocUI();
 })();
